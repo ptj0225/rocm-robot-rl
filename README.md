@@ -43,6 +43,7 @@ If you have an AMD card and want to do serious robot RL, this is a working start
 
 Unitree G1, `G1JoystickRoughTerrain`, PPO. Reward is per-episode tracking reward (higher = better gait).
 
+<!-- RESULTS:START -->
 | Run | Network | Steps | num_envs | Eval reward | Notes |
 |-----|---------|-------|----------|-------------|-------|
 | Baseline | MLP (512,256,128) | 100 M | 1024 | −3 → **+13** | walks (demo GIF above) |
@@ -51,6 +52,9 @@ Unitree G1, `G1JoystickRoughTerrain`, PPO. Reward is per-episode tracking reward
 Throughput: **~5,600 steps/s** on a single R9700 at 1024 envs.
 
 ![Training curve](training_curve.png)
+<!-- RESULTS:END -->
+
+> Results table and demo above are auto-updated when the experiment queue finishes.
 
 ---
 
