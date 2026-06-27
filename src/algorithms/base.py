@@ -11,7 +11,7 @@ from src.config import parse_sizes
 BUNDLE_FORMAT = "brax_ppo_v1"
 
 
-def save_policy(path: str, params, *, env: str, policy_sizes, value_sizes, net: dict | None = None) -> None:
+def save_policy(path: str, params, *, env: str, policy_sizes, value_sizes, net: dict | None = None, verbose: bool = True) -> None:
     """정책 params + 네트워크 메타데이터를 단일 번들(dict)로 저장.
 
     렌더링/평가 시 동일한 네트워크 구조를 복원하려면 layer size/네트워크 종류가 필요하므로 함께 저장.
@@ -30,7 +30,8 @@ def save_policy(path: str, params, *, env: str, policy_sizes, value_sizes, net: 
     }
     with open(path, "wb") as f:
         pickle.dump(bundle, f)
-    print(f"모델 저장: {path}")
+    if verbose:
+        print(f"모델 저장: {path}")
 
 
 def load_policy(path: str) -> tuple[Any, dict]:

@@ -60,6 +60,11 @@ class Config:
     rocm_strip_force_sensors: bool = False
     # playground 접촉 버퍼 크기. 0이면 환경 기본값 사용. 대량 envs 시 메모리 절약용으로 축소 가능.
     naconmax: int = 0
+    # 실행 로깅/체크포인트 (runs/<run_name>/). run_name 비우면 자동 타임스탬프.
+    logdir: str = "runs"
+    run_name: str = ""
+    tensorboard: bool = True
+    checkpoint: bool = True
     ppo: PPOConfig = field(default_factory=PPOConfig)
 
 

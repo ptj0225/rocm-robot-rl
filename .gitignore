@@ -13,3 +13,7 @@ wheels/
 
 # 학습 로그 (대용량, 재생성 가능)
 logs/
+
+# 실행 폴더: 체크포인트(.pkl)·TensorBoard 이벤트 (대용량, 재생성 가능)
+# 최종 모델(pipeline_*.pkl)은 루트에 별도 커밋
+runs/

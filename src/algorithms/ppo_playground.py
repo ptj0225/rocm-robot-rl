@@ -38,6 +38,22 @@ class PlaygroundPPOTrainer(BaseTrainer):
             restore_params, _meta = load_policy(restore_path)
             restore_params = jax.tree.map(jax.numpy.asarray, restore_params)
             print(f"체크포인트 이어받기: {restore_path}", flush=True)
+
+        # 네트워크 메타(체크포인트/렌더 복원용) + 실행 폴더/TensorBoard 설정
+        from src.runlog import log_metrics, make_checkpoint_fn, setup_run
+
+        net_name = c.get("network", "mlp")
+        net_meta = {
+            "network": net_name,
+            "policy_obs_key": c.policy_obs_key,
+            "value_obs_key": c.value_obs_key,
+            "simba_policy_blocks": c.simba_policy_blocks,
+            "simba_policy_hidden": c.simba_policy_hidden,
+            "simba_value_blocks": c.simba_value_blocks,
+            "simba_value_hidden": c.simba_value_hidden,
+        }
+        run_dir, writer = setup_run(cfg, f"{cfg.env}_{net_name}")
+
         total = c.num_timesteps
         start = [time.time()]
         last_time = [time.time()]
@@ -51,6 +67,8 @@ class PlaygroundPPOTrainer(BaseTrainer):
             avg_sps = step / elapsed if elapsed > 0 else 0.0
             last_step[0] = step
             last_time[0] = now
+            log_metrics(writer, int(step), dict(metrics),
+                        {"perf/sps": instant_sps, "perf/avg_sps": avg_sps})
             rew = metrics.get("eval/episode_reward", float("nan"))
             print(
                 f"  step {step:>11,}/{total:,} "
@@ -86,6 +104,13 @@ class PlaygroundPPOTrainer(BaseTrainer):
                 value_obs_key=c.value_obs_key,
             )
 
+        checkpoint_fn = make_checkpoint_fn(
+            cfg, run_dir, env=cfg.env,
+            policy_sizes=parse_sizes(c.policy_hidden_layer_sizes),
+            value_sizes=parse_sizes(c.value_hidden_layer_sizes),
+            net=net_meta,
+        )
+
         mk, params, _metrics = ppo_mod.train(
             environment=env,
             num_timesteps=c.num_timesteps,
@@ -114,7 +139,11 @@ class PlaygroundPPOTrainer(BaseTrainer):
             wrap_env_fn=wrapper.wrap_for_brax_training,
             restore_params=restore_params,
             progress_fn=progress_fn,
+            policy_params_fn=checkpoint_fn,
         )
+        if writer is not None:
+            writer.flush()
+            writer.close()
         return env, mk, params
 
     def evaluate(self, model: tuple, env, cfg: DictConfig, n_episodes: int = 64) -> np.ndarray:
