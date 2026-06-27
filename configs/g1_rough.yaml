@@ -1,0 +1,49 @@
+# Unitree G1 험지(rough terrain) 보행 — MuJoCo Playground + brax PPO
+# jax-rocm 0.9.2+ 에서 gfx1201 버그가 해결되어 풀파워(DR on, 대량 envs, SimBa) 사용.
+#
+# 학습:
+#   .venv-mjx/bin/python train.py --config configs/g1_rough.yaml
+# 이어학습:
+#   .venv-mjx/bin/python train.py --config configs/g1_rough.yaml restore_path=pipeline_g1_rough.pkl
+env: G1JoystickRoughTerrain
+backend: playground
+seed: 0
+model_path: pipeline_g1_simba.pkl   # SimBa 신규 학습 (기존 MLP 모델 보존)
+restore_path: ""
+rocm_strip_force_sensors: false   # 0.9.2+에서는 불필요 (전체 보상항 사용)
+naconmax: 8192                     # 대량 envs 메모리 절약 (G1 feetonly엔 충분)
+
+ppo:
+  num_timesteps: 150_000_000
+  num_envs: 2048                   # gfx1201/32GB에서 검증된 안전 규모 (4096은 OOM)
+  num_evals: 20
+  num_eval_envs: 128
+  learning_rate: 3e-4
+  entropy_cost: 5e-3
+  discounting: 0.97
+  unroll_length: 20
+  batch_size: 256
+  num_minibatches: 8
+  num_updates_per_batch: 4
+  num_resets_per_eval: 1
+  reward_scaling: 1.0
+  clipping_epsilon: 0.2
+  max_grad_norm: 1.0
+  gae_lambda: 0.95
+  episode_length: 1000
+  normalize_observations: true
+  precision: float32
+  deterministic_eval: true
+  # 비대칭 actor-critic
+  policy_obs_key: state
+  value_obs_key: privileged_state
+  domain_randomization: true        # 0.9.2+에서 동작 → sim2real 강건성
+  # 신경망: SimBa (residual+LayerNorm, MLP보다 우수)
+  network: simba
+  simba_policy_blocks: 2
+  simba_policy_hidden: 256
+  simba_value_blocks: 2
+  simba_value_hidden: 512
+  # (network=mlp 일 때만 사용되는 폴백 크기)
+  policy_hidden_layer_sizes: "512,256,128"
+  value_hidden_layer_sizes: "512,256,128"
