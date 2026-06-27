@@ -1,0 +1,28 @@
+# MJX/JAX 학습 환경 (AMD ROCm). Python 3.12.
+#
+# 설치 순서가 중요합니다 — playground가 끌어오는 JAX를 ROCm 빌드로 덮어써야 합니다:
+#
+#   uv venv --python 3.12 .venv-mjx
+#   VIRTUAL_ENV=.venv-mjx uv pip install -r requirements-mjx.txt
+#   # 그 다음 ROCm용 JAX로 덮어쓰기 (AMD gfx1201 코드젠 버그가 0.9.2에서 해결됨):
+#   VIRTUAL_ENV=.venv-mjx uv pip install \
+#       jax==0.9.2 jaxlib==0.9.2 jax-rocm7-pjrt==0.9.2 jax-rocm7-plugin==0.9.2
+#
+# NVIDIA(CUDA)에서 쓰려면 위 ROCm 줄 대신:  uv pip install jax[cuda12]==0.9.2
+
+# --- 시뮬레이터 / RL ---
+brax==0.14.2
+mujoco==3.10.0
+mujoco-mjx==3.10.0
+playground==0.2.0          # mujoco_playground (G1 등 로봇/태스크)
+flax==0.12.6
+optax==0.2.8
+
+# --- 설정 / 로깅 / 렌더 ---
+omegaconf==2.3.1
+tensorboard==2.20.0
+tensorboardX==2.6.5
+imageio[ffmpeg]==2.37.3
+etils==1.14.0
+
+# JAX 본체는 위 주석의 ROCm(또는 CUDA) 빌드로 별도 설치하세요. (여기 넣으면 CPU 빌드가 깔립니다)

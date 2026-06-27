@@ -1,0 +1,46 @@
+#!/bin/bash
+# 자동 실험 큐 — 마감 시각까지 학습을 연달아 돌리고 각 학습 후 렌더+커밋.
+# 학습이 크래시하면 GPU 헬스체크 후 자동 리셋(선택)하고 다음으로 진행.
+#
+# 사용법:
+#   cp run_queue.sh.example run_queue.sh
+#   # (선택) GPU 자동 리셋을 쓰려면 환경변수로 sudo 비번 전달 — 스크립트에 직접 적지 마세요:
+#   export SUDO_PW='...'
+#   DEADLINE=$(date -d 'tomorrow 18:00' +%s) nohup setsid bash run_queue.sh >/dev/null 2>&1 &
+set -u
+cd "$(dirname "$0")"
+PY=.venv-mjx/bin/python
+DEADLINE="${DEADLINE:-$(date -d 'tomorrow 18:00' +%s)}"
+SUDO_PW="${SUDO_PW:-}"          # 비어있으면 GPU 리셋 단계 건너뜀 (직접 적지 말 것)
+QLOG=logs/queue.log
+mkdir -p logs
+log(){ echo "[$(date '+%m-%d %H:%M')] $*" | tee -a "$QLOG"; }
+
+gpu_health(){ $PY -c "import rocm_setup; rocm_setup.configure_rocm_runtime(); import jax,jax.numpy as jp; (jp.ones((512,512))@jp.ones((512,512))).block_until_ready()" >/dev/null 2>&1; }
+gpu_reset(){ [ -z "$SUDO_PW" ] && { log "SUDO_PW 미설정 → 리셋 생략(재부팅 필요할 수 있음)"; return; }; log "GPU 리셋"; echo "$SUDO_PW" | sudo -S rocm-smi --gpureset -d 0 >>"$QLOG" 2>&1; sleep 15; }
+ensure_gpu(){ gpu_health || { log "GPU 비정상 → 리셋 시도"; gpu_reset; }; }
+
+commit_run(){  # name model run_name train_log
+  local name=$1 model=$2 rn=$3 tlog=$4
+  [ -f "$model" ] || cp "runs/$rn/checkpoints/latest.pkl" "$model" 2>/dev/null || { log "$name: 모델 없음 → 커밋 생략"; return 1; }
+  $PY src/utils/render_playground.py "$model" --x_vel 1.0 --camera track --out "rollout_${name}.mp4" >"logs/render_${name}.log" 2>&1 || true
+  $PY src/utils/plot.py "$tlog" "${name}_curve.png" >/dev/null 2>&1 || true
+  git add "$model" "rollout_${name}.mp4" "${name}_curve.png" 2>/dev/null
+  git commit -q -m "experiment: ${name}" && log "$name: committed" || log "$name: nothing to commit"
+}
+
+run_exp(){  # name "extra train.py args"
+  local name=$1 extra=$2
+  [ "$(date +%s)" -ge "$DEADLINE" ] && { log "deadline → skip $name"; return 1; }
+  local rn="${name}_$(date +%Y%m%d_%H%M%S)" model="pipeline_${name}.pkl" tlog="logs/${name}.log"
+  ensure_gpu
+  log "train $name | $extra"
+  $PY train.py --config configs/g1_rough.yaml run_name="$rn" model_path="$model" $extra >"$tlog" 2>&1
+  log "done $name (exit $?)"
+  commit_run "$name" "$model" "$rn" "$tlog"
+}
+
+# 예시 큐 — 원하는 실험으로 바꿔 쓰세요
+run_exp "mlp_dr"    "ppo.network=mlp ppo.domain_randomization=true"
+run_exp "simba_big" "ppo.network=simba ppo.simba_policy_blocks=3 ppo.simba_value_hidden=512"
+log "queue finished"

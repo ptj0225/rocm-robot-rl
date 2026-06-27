@@ -18,5 +18,12 @@ logs/
 # 최종 모델(pipeline_*.pkl)은 루트에 별도 커밋
 runs/
 
-# 자동 실험 큐 스크립트
+# 자동 실험 큐 스크립트 (sudo 비번 포함 가능 — 공개 금지). 템플릿: run_queue.sh.example
 run_queue.sh
+
+# 레거시/중복 바이너리 (히스토리엔 남아있으나 추적 해제)
+ppo_ant.zip
+pipeline_pusher.pkl
+pipeline_g1_rough_100M.pkl
+rollout.mp4
+rollout_pusher.mp4
