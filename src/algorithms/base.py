@@ -1,3 +1,4 @@
+import os
 import pickle
 from abc import ABC, abstractmethod
 from typing import Any
@@ -28,6 +29,7 @@ def save_policy(path: str, params, *, env: str, policy_sizes, value_sizes, net: 
         "value_sizes": list(value_sizes),
         "net": net or {"network": "mlp"},
     }
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with open(path, "wb") as f:
         pickle.dump(bundle, f)
     if verbose:

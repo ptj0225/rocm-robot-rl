@@ -18,14 +18,14 @@ os.chdir(ROOT)
 
 # (표시이름, 네트워크, 모델파일, 로그파일)
 EXPERIMENTS = [
-    ("Baseline", "MLP (512,256,128)", "pipeline_g1_rough.pkl", "logs/g1_rough_full.log"),
-    ("SimBa (no DR)", "SimBa 2×256/512", "pipeline_g1_simba.pkl", "logs/g1_simba_full.log"),
-    ("MLP + DR", "MLP + domain rand.", "pipeline_g1_mlp_dr.pkl", "logs/mlp_dr.log"),
-    ("SimBa big", "SimBa 3×384/512", "pipeline_g1_simba_big.pkl", "logs/simba_big.log"),
+    ("Baseline", "MLP (512,256,128)", "models/pipeline_g1_rough.pkl", "logs/g1_rough_full.log"),
+    ("SimBa (no DR)", "SimBa 2×256/512", "models/pipeline_g1_simba.pkl", "logs/g1_simba_full.log"),
+    ("MLP + DR", "MLP + domain rand.", "models/pipeline_g1_mlp_dr.pkl", "logs/mlp_dr.log"),
+    ("SimBa big", "SimBa 3×384/512", "models/pipeline_g1_simba_big.pkl", "logs/simba_big.log"),
 ]
 # 이어학습(filler) 결과도 자동 포함
-for m in sorted(glob.glob("pipeline_g1_simba_cont*.pkl")):
-    base = m[len("pipeline_g1_"):-4]
+for m in sorted(glob.glob("models/pipeline_g1_simba_cont*.pkl")):
+    base = os.path.basename(m)[len("pipeline_g1_"):-4]
     EXPERIMENTS.append((base, "SimBa (resumed)", m, f"logs/{base}.log"))
 
 

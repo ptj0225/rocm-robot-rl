@@ -52,7 +52,8 @@ def main():
     p.add_argument("--camera", default="track", help="카메라 이름 (로봇 추적: track)")
     args = p.parse_args()
 
-    out = args.out or (f"rollout_{args.env}.gif" if args.gif else f"rollout_{args.env}.mp4")
+    out = args.out or (f"media/rollout_{args.env}.gif" if args.gif else f"media/rollout_{args.env}.mp4")
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
 
     print("loading policy + env...", flush=True)
     params, meta = load_policy(args.model)

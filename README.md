@@ -112,7 +112,7 @@ Sanity check:
 .venv-mjx/bin/python -m tensorboard.main --logdir runs      # http://localhost:6006
 
 # Render the trained policy to video
-.venv-mjx/bin/python src/utils/render_playground.py pipeline_g1_simba.pkl --x_vel 1.0
+.venv-mjx/bin/python src/utils/render_playground.py models/pipeline_g1_simba.pkl --x_vel 1.0
 
 # Resume from the latest checkpoint (e.g. after an interruption)
 .venv-mjx/bin/python train.py --config configs/g1_rough.yaml \
@@ -126,7 +126,8 @@ Override anything from the CLI (OmegaConf):
     ppo.network=mlp ppo.domain_randomization=true ppo.num_timesteps=50_000_000
 ```
 
-A pretrained walking policy (`pipeline_g1_rough.pkl`) is included so you can render immediately.
+Pretrained policies live in [`models/`](models) and demo videos in [`media/`](media), so you can
+render or evaluate immediately.
 
 ---
 
@@ -198,6 +199,10 @@ MuJoCo / MJX (JAX physics)         <- rigid-body sim, runs on AMD via ROCm
 │       ├── ppo_playground.py    # G1/playground PPO (asymmetric critic, DR, resume)
 │       └── simba.py             # SimBa network factory
 │   └── utils/{render_mjx,render_playground,plot}.py
+├── models/                      # trained policies (.pkl)
+├── media/                       # rollout videos (.mp4)
+├── assets/                      # README media (demo gif)
+├── docs/amd-rocm-gfx1201.md     # AMD/gfx1201 field guide
 ├── requirements-mjx.txt
 ├── run_queue.sh.example         # optional: chain experiments back-to-back, auto-commit
 └── legacy/                      # earlier Gym + Stable-Baselines3 (PyTorch/CPU) experiments
