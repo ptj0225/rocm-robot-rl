@@ -86,8 +86,7 @@ def main():
         + "\n".join(rows)
         + "\n\n"
         f"_Best policy: **{best[1]}** (eval reward {best[0]:+.1f}). "
-        "Single Radeon AI PRO R9700 (gfx1201), 1024 envs._\n\n"
-        "![Training curve](training_curve.png)\n"
+        "Single Radeon AI PRO R9700 (gfx1201), 1024 envs._\n"
         "<!-- RESULTS:END -->"
     )
 

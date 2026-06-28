@@ -27,3 +27,7 @@ pipeline_pusher.pkl
 pipeline_g1_rough_100M.pkl
 rollout.mp4
 rollout_pusher.mp4
+
+# 플롯 이미지 (제외)
+training_curve.png
+*_curve.png

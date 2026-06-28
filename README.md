@@ -53,8 +53,6 @@ Unitree G1, `G1JoystickRoughTerrain`, PPO. Reward is per-episode tracking reward
 | simba_cont1 | SimBa (resumed) | 50 M | **+24.2** ± 9.1 | 4644 |
 
 _Best policy: **SimBa big** (eval reward +24.4). Single Radeon AI PRO R9700 (gfx1201), 1024 envs._
-
-![SimBa big training curve](simba_big_curve.png)
 <!-- RESULTS:END -->
 
 ---
