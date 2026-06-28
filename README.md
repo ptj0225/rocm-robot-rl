@@ -44,12 +44,15 @@ If you have an AMD card and want to do serious robot RL, this is a working start
 Unitree G1, `G1JoystickRoughTerrain`, PPO. Reward is per-episode tracking reward (higher = better gait).
 
 <!-- RESULTS:START -->
-| Run | Network | Steps | num_envs | Eval reward | Notes |
-|-----|---------|-------|----------|-------------|-------|
-| Baseline | MLP (512,256,128) | 100 M | 1024 | −3 → **+13** | walks (demo GIF above) |
-| SimBa | residual+LN | 150 M | 1024 | _training_ | residual upgrade |
+| Run | Network | Steps | Eval reward | steps/s |
+|-----|---------|-------|-------------|---------|
+| Baseline | MLP (512,256,128) | 100 M | **+11.9** ± 8.1 | 4549 |
+| SimBa (no DR) | SimBa 2×256/512 | 150 M | **+21.7** ± 9.9 | 5521 |
+| MLP + DR | MLP + domain rand. | 150 M | **+11.8** ± 9.8 | 7400 |
+| SimBa big | SimBa 3×384/512 | 150 M | **+24.4** ± 8.0 | 4456 |
+| simba_cont1 | SimBa (resumed) | 50 M | **+24.2** ± 9.1 | 4644 |
 
-Throughput: **~5,600 steps/s** on a single R9700 at 1024 envs.
+_Best policy: **SimBa big** (eval reward +24.4). Single Radeon AI PRO R9700 (gfx1201), 1024 envs._
 
 ![Training curve](training_curve.png)
 <!-- RESULTS:END -->
